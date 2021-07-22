@@ -29,6 +29,9 @@ class BitFeederString:
             bitsarray.append(bits)
         self.bitstring = ''.join(bitsarray)
 
+    def get_length(self):
+        return(len(self.bitstring))
+
     def get_bits(self, n, returntype=str):
         """this function returns n bits 
             
