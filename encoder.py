@@ -57,6 +57,7 @@ message = args.message
 bit_depth = args.bit_depth
 
 if command == 'encode':
+    print(bit_depth)
     filesize = os.path.getsize(message)
     x = Image.open(cover)
     pic_size = x.size
@@ -83,7 +84,7 @@ if command == 'encode':
                             length_index +=1
                         else:
                             message = bfeed.get_bits(1)
-                        encoded = encoder(cover,message,bit_depth)
+                        encoded = encoder(cover,message,level=bit_depth)
                         output = int(encoded, 2)
                         modified.append(output)
                 x.putpixel( (i , j), (modified[0], modified[1], modified[2], 255))
@@ -97,6 +98,7 @@ if command == 'decode':
     index = 0
     finish = get_length_from_file(x, bit_depth)
     bs = BitSaver(file_length=finish-32)
+    print(finish)
     for i in range(pic_size[0]):
         for j in range(pic_size[1]): 
             color = x.getpixel((i,j))
@@ -112,8 +114,8 @@ if command == 'decode':
                         bs.add_bits(bit)
                         index += 1
                 
-                bs.save_file("output.txt")
-                exit()
+bs.save_file("output")
+exit()
 
     
 
