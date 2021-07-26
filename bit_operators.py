@@ -152,6 +152,103 @@ def get_lsb(byte, n):
     lsb = byte & mask
     return lsb
 
+def write_lsb_avg(byte_list, bits, n):
+    """takes a list of bytes, a sequence of message bits and the number of bits
+    and returns a list of modified bytes with the secret message encoded. 
+
+    replaces the lsb bytes so that the average of the group equals the message 
+    bits.
+
+    syntax: 
+    write_lsb_avg(byte_list, bits, n)
+
+    Args:
+        byte_list (List[int]): A list of hidden bytes
+        bits (string): The hidden message bits
+        n (int): The number of bytes (LSB) to be hidden
+
+    Returns:
+        List[int]: List of final byte values to be stored in the output cover
+    """    
+    m = len(byte_list)
+    avg_byte = sum(byte_list) // m
+    avg_lsb = get_lsb(avg_byte, n)
+    diff = int(avg_lsb,2) - int(bits, 2) 
+
+    for i in range(m):
+        byte_list[i] = byte_list[i] + diff
+
+    return byte_list
+
+def read_lsb_avg(byte_list, n_lsb):
+    """Reads a list of bytes and extracts the message for n_lsb using the avg
+    method. Takes the average of byte list and pulls n_lsb.
+
+    string_bits = read_lsb_sum(byte_list, n_lsb)
+
+    Args:
+        byte_list (List[int]): list of bytes from the cover file w/ hidden message
+        n_lsb (int): number of bits to extract from message
+
+    Returns:
+        str: bit string of hidden message (use with BitSaver class)
+    """    
+    avg_byte = sum(byte_list) // len(byte_list)
+    return get_lsb(avg_byte, n_lsb)
+
+def read_lsb_sum(byte_list, n_lsb):
+    """Reads a list of bytes and extracts the message for n_lsb using the sum
+    method.
+
+    string_bits = read_lsb_sum(byte_list, n_lsb)
+
+    Args:
+        byte_list (List[int]): list of bytes from the cover file w/ hidden message
+        n_lsb (int): number of bits to extract from message
+
+    Returns:
+        str: bit string of hidden message (use with BitSaver class)
+    """    
+    sum_byte = sum(byte_list)
+    return get_lsb(sum_byte, n_lsb)
+
+
+def write_lsb_sum(byte_list, bits, n):
+    """takes a list of bytes, a sequence of message bits and the number of bits
+    and returns a list of modified bytes with the secret message encoded. 
+
+    replaces the lsb bytes so that the sum of the group equals the message 
+    bits.
+
+    syntax: 
+    write_lsb_sum(byte_list, bits, n)
+
+    Args:
+        byte_list (List[int]): A list of hidden bytes
+        bits (string): The hidden message bits
+        n (int): The number of bytes (LSB) to be hidden
+
+    Returns:
+        List[int]: List of final byte values to be stored in the output cover
+    """ 
+    m = len(byte_list)
+    sum_byte = sum(byte_list)
+    sum_lsb = get_lsb(sum_byte, n)
+    diff = int(sum_lsb,2) - int(bits, 2) 
+
+    i = 0
+    while diff != 0:
+        if diff > 0:
+            byte_list[i] = byte_list[i] + 1 
+            diff -= 1
+        else:
+            byte_list[i] = byte_list[i] - 1 
+            diff += 1
+        i += 1
+        i %= m # same as i = i % m 
+
+    return byte_list
+
 
 if __name__ == "__main__":
     test_input = 'sample.pptx'
@@ -165,6 +262,7 @@ if __name__ == "__main__":
 
     bs.save_file(test_output)
 
+# Performance Profile:
 # In [1]: %run -m cProfile bit_operators.py
 #          3462197 function calls in 1.232 seconds
 
