@@ -173,7 +173,7 @@ def write_lsb_avg(byte_list, bits, n):
     m = len(byte_list)
     avg_byte = sum(byte_list) // m
     avg_lsb = get_lsb(avg_byte, n)
-    diff = int(avg_lsb,2) - int(bits, 2) 
+    diff = avg_lsb - int(bits, 2) 
 
     for i in range(m):
         byte_list[i] = byte_list[i] + diff
@@ -234,7 +234,7 @@ def write_lsb_sum(byte_list, bits, n):
     m = len(byte_list)
     sum_byte = sum(byte_list)
     sum_lsb = get_lsb(sum_byte, n)
-    diff = int(sum_lsb,2) - int(bits, 2) 
+    diff = sum_lsb - int(bits, 2) 
 
     i = 0
     while diff != 0:

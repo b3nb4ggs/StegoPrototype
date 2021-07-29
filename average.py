@@ -89,6 +89,8 @@ if command == 'encode':
         
     if bf.finished:
         print("success")
+        im.save('test_output.' + cover.split('.')[-1])
+
 
 if command == 'decode':
     pass
