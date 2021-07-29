@@ -1,5 +1,7 @@
+__pycache__/*
 *.bmp
 *.jpeg
 *.jpg
+*.png
 *.pptx
 Untitled.ipynb
