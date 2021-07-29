@@ -1,5 +1,5 @@
 from PIL import Image
-from bit_operators import BitFeederString, BitSaver
+from bit_operators import BitFeederString, BitSaver, read_lsb_avg, write_lsb_avg, read_lsb_sum, write_lsb_sum
 import os, sys
 from arguments import avg_parser
 
@@ -41,8 +41,7 @@ class CoordGenerator():
             print("no more pixels left")
             self.exit = True
 
-def get_pixel_byte_group(image, coord_obj, pixel_no):
-    coords = coord_obj.get_n(pixel_no)
+def get_pixel_byte_group(image, coords):
     pixel_group = []
     for c in coords:
         byte_value = image.getpixel((c[0],c[1]))[c[2]]
@@ -50,17 +49,46 @@ def get_pixel_byte_group(image, coord_obj, pixel_no):
 
     return pixel_group
 
+def update_pixel(image, coords, new_pixels):
+    for i in range(len(coords)):
+        c = coords[i]
+        new_byte = new_pixels[i]
+
+        original = list(image.getpixel((c[0],c[1])))
+        original[c[2]] = new_byte
+        updated = tuple(original)
+        
+        image.putpixel((c[0], c[1]), updated)
+
 args = avg_parser.parse_args()
 command = args.command
 cover = args.cover
 message = args.message
 method = args.method
-lsb = args.lsb
-pixel_no = args.pixelno
+nlsb = int(args.lsb) # number of lsb bits to use
+pixel_no = int(args.pixelno)
 
 im = Image.open(cover)
+output = im.copy()
+
 if command == 'encode':
-    pass
+    bf = BitFeederString(message)
+    cg = CoordGenerator(im.size[0], im.size[1], 3, start_position=[1, 0, 0]) # start on second row of the image
+    while not bf.finished and not cg.exit:
+        coordinate_set = cg.get_n(pixel_no)
+        pixel_group = get_pixel_byte_group(im, coordinate_set) 
+
+        if method == 'sum':
+            new_bytes = write_lsb_sum(pixel_group, bf.get_bits(nlsb), nlsb)
+
+        elif method == 'avg':
+            new_bytes = write_lsb_avg(pixel_group, bf.get_bits(nlsb), nlsb)
+        
+        # update output
+        update_pixel(output, coordinate_set, new_bytes)
+        
+    if bf.finished:
+        print("success")
 
 if command == 'decode':
     pass
