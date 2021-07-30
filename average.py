@@ -1,5 +1,5 @@
 from PIL import Image
-from bit_operators import BitFeederString, BitSaver, read_lsb_avg, write_lsb_avg, read_lsb_sum, write_lsb_sum
+from bit_operators import BitFeederString, BitSaver, read_lsb_avg, write_lsb_avg, read_lsb_sum, write_lsb_sum, replace_lsb
 import os, sys
 from arguments import avg_parser
 import pdb
@@ -71,14 +71,33 @@ def save_metadata(output, message_size, message_extension):
     if extension_length > 4:
         raise ValueError("extension length should be less than 4 char")
     ext_length_bits = bin(extension_length)[2:]
-    ext_length_bits = '0'*(4-len(ext_length_bits)) + bin(extension_length)
+    ext_length_bits = '0'*(4-len(ext_length_bits)) + ext_length_bits
 
     extension_bytes = [ord(x) for x in message_extension]
     extension_bits = [bin(x)[2:] for x in extension_bytes]
     extension_8bits = ['0'*(8-len(x)) + x for x in extension_bits]
-    
+    extension_8bits = [byte[i:i+4] for byte in extension_8bits for i in range(0,len(byte), 4)]
+
     metadata = size_bits + [ext_length_bits] + extension_8bits
-    
+    cg2 = CoordGenerator(output.size[0], output.size[1], 3, start_position=[0,0,0]) 
+    coord_set = cg2.get_n(len(metadata))
+    for i in range(len(coord_set)):
+        c = coord_set[i]
+        original = list(output.getpixel((c[1],c[0])))
+        byte = original[c[2]]
+        new_byte = replace_lsb(metadata[i], byte, 4) # default 4 lsb for metadata
+
+        original[c[2]] = new_byte
+        updated = tuple(original)
+        
+        output.putpixel((c[1], c[0]), updated) 
+
+def get_metadata(image):
+    cg2 = CoordGenerator(image.size[0], image.size[1], 3, start_position=[0,0,0])
+    coordinate_set = cg2.get_n(32)
+    for i in range(len(coordinate_set))
+
+    return message_size, message_extension
 
 args = avg_parser.parse_args()
 command = args.command
