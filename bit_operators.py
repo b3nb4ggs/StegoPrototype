@@ -181,14 +181,26 @@ def write_lsb_avg(byte_list, bits, n):
     # sum byte
     m = len(byte_list)
     sum_byte = sum(byte_list) 
-    sum_lsb = get_lsb(sum_byte, n)
-    # diff = (int(bits, 2) * m) % (2**n) - sum_lsb
-    diff = (int(bits, 2) * m) - sum_lsb
+    target_average = int(sum_byte / m - (sum_byte / m) % (2**n) + int(bits,2))
+    diff = target_average * m - sum_byte
 
-    # average = m = [a + b + c] / n
+    # diff = (int(bits, 2) * m) % (2**n) - sum_lsb
+    # diff = (int(bits, 2) * m) - sum_lsb
+
+    # target '100' / lsb 3
+    # 388 / 3 = 129.33
+    # what is the smallest number to add to x to make the average have the right lsb
+    # (132) is the closest average
+    # how to get 132?
+    # target_average = (388 / 3) - (388 / 3) % 2**3 + '100'
+    # target_average = sum_byte / m - (sum_byte /m ) % (2**lsb) + int(bits,2)
+    # diff = target_average * m - sum_byte
+
+    # average = avg = [a + b + c] / n
     # desired average = z = [a + b + c + x] / n
     # x?
     # x = z * n - [a + b + c]
+
 
     i = 0
     while diff != 0:
@@ -201,7 +213,12 @@ def write_lsb_avg(byte_list, bits, n):
         i += 1
         i %= m # same as i = i % m (rotate through bytes e.g. 0, 1, 2, 0, 1, 2)
     
-    if sum(byte_list)/m != sum(byte_list)//m:
+    if target_average != sum(byte_list)/m:
+        print("bad target average")
+        pdb.set_trace()
+
+    if read_lsb_avg(byte_list, n) != int(bits,2):
+        print("bad final bit")
         pdb.set_trace()
 
     return byte_list
@@ -260,15 +277,15 @@ def write_lsb_sum(byte_list, bits, n):
     m = len(byte_list)
     sum_byte = sum(byte_list)
     sum_lsb = get_lsb(sum_byte, n)
-    diff = sum_lsb - int(bits, 2) 
+    diff = int(bits, 2) - sum_lsb
 
     i = 0
     while diff != 0:
         if diff > 0:
-            byte_list[i] = byte_list[i] - 1 
+            byte_list[i] = byte_list[i] + 1 
             diff -= 1
         else:
-            byte_list[i] = byte_list[i] + 1 
+            byte_list[i] = byte_list[i] - 1 
             diff += 1
         i += 1
         i %= m # same as i = i % m 

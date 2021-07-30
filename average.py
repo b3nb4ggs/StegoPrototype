@@ -2,6 +2,7 @@ from PIL import Image
 from bit_operators import BitFeederString, BitSaver, read_lsb_avg, write_lsb_avg, read_lsb_sum, write_lsb_sum
 import os, sys
 from arguments import avg_parser
+import pdb
 
 class CoordGenerator():
     """CoordGenerator serializes pixel/color channel indices to 
@@ -60,6 +61,25 @@ def update_pixel(image, coords, new_pixels):
         
         image.putpixel((c[1], c[0]), updated)
 
+def save_metadata(output, message_size, message_extension):
+    # start at 0,0 pixel, use 4 lsb in corner
+    size_bits = bin(message_size)[2:]
+    size_bits = '0'*(32-len(size_bits)) + size_bits # pad with zeros
+    size_bits = [size_bits[i:i+4] for i in range(0, len(size_bits), 4)]
+    
+    extension_length = len(message_extension)
+    if extension_length > 4:
+        raise ValueError("extension length should be less than 4 char")
+    ext_length_bits = bin(extension_length)[2:]
+    ext_length_bits = '0'*(4-len(ext_length_bits)) + bin(extension_length)
+
+    extension_bytes = [ord(x) for x in message_extension]
+    extension_bits = [bin(x)[2:] for x in extension_bytes]
+    extension_8bits = ['0'*(8-len(x)) + x for x in extension_bits]
+    
+    metadata = size_bits + [ext_length_bits] + extension_8bits
+    
+
 args = avg_parser.parse_args()
 command = args.command
 cover = args.cover
@@ -74,6 +94,11 @@ output = im.copy()
 if command == 'encode':
     bf = BitFeederString(message)
     cg = CoordGenerator(im.size[0], im.size[1], 3, start_position=[1, 0, 0]) # start on second row of the image
+
+    message_size = int(bf.get_length()/8)
+    message_extension = message.split(".")[-1]
+
+    save_metadata(output, message_size, message_extension)
     while not bf.finished and not cg.exit:
         coordinate_set = cg.get_n(pixel_no)
         pixel_group = get_pixel_byte_group(im, coordinate_set) 
@@ -97,7 +122,8 @@ if command == 'encode':
 
 if command == 'decode':
     print(f"cover 0,1 pixel: {output.getpixel((0,1))}")
-    bs = BitSaver(file_length=64) # hard code test file size for now TODO FILE METADATA
+    bs = BitSaver(file_length=405216) # hard code test file size for now TODO FILE METADATA
+    # bs = BitSaver(file_length=1112) # hard code test file size for now TODO FILE METADATA
     cg = CoordGenerator(im.size[0], im.size[1], 3, start_position=[1,0,0])
 
     while not bs.finished:
@@ -113,4 +139,5 @@ if command == 'decode':
         # add bits to file
         bs.add_bits(bits, datatype=int, nlsb=nlsb)
     
-    bs.save_file('test_output.txt')
+    bs.save_file('test_output.jpg')
+    # bs.save_file('test_output.txt')
