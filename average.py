@@ -44,7 +44,7 @@ class CoordGenerator():
 def get_pixel_byte_group(image, coords):
     pixel_group = []
     for c in coords:
-        byte_value = image.getpixel((c[0],c[1]))[c[2]]
+        byte_value = image.getpixel((c[1],c[0]))[c[2]]
         pixel_group.append(byte_value)
 
     return pixel_group
@@ -54,11 +54,11 @@ def update_pixel(image, coords, new_pixels):
         c = coords[i]
         new_byte = new_pixels[i]
 
-        original = list(image.getpixel((c[0],c[1])))
+        original = list(image.getpixel((c[1],c[0])))
         original[c[2]] = new_byte
         updated = tuple(original)
         
-        image.putpixel((c[0], c[1]), updated)
+        image.putpixel((c[1], c[0]), updated)
 
 args = avg_parser.parse_args()
 command = args.command
@@ -89,8 +89,28 @@ if command == 'encode':
         
     if bf.finished:
         print("success")
-        im.save('test_output.' + cover.split('.')[-1])
 
+    print(f"original 0,1 pixel: {im.getpixel((0,1))}")
+    print(f"output 0,1 pixel: {output.getpixel((0,1))}")
+
+    output.save('output.' + cover.split('.')[-1])
 
 if command == 'decode':
-    pass
+    print(f"cover 0,1 pixel: {output.getpixel((0,1))}")
+    bs = BitSaver(file_length=64) # hard code test file size for now TODO FILE METADATA
+    cg = CoordGenerator(im.size[0], im.size[1], 3, start_position=[1,0,0])
+
+    while not bs.finished:
+        coordinate_set = cg.get_n(pixel_no)
+        pixel_group = get_pixel_byte_group(im, coordinate_set) 
+
+        if method == 'sum':
+            bits = read_lsb_sum(pixel_group, nlsb)
+
+        elif method == 'avg':
+            bits = read_lsb_avg(pixel_group, nlsb)
+        
+        # add bits to file
+        bs.add_bits(bits, datatype=int, nlsb=nlsb)
+    
+    bs.save_file('test_output.txt')

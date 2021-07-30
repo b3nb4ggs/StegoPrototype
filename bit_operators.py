@@ -1,3 +1,4 @@
+import pdb
 
 class BitFeederString:
     """This class will take a file_name and convert it into string-based bits
@@ -94,9 +95,10 @@ class BitSaver:
         self.read_length = 0
         self.finished = False
 
-    def add_bits(self, bits, datatype=str):
+    def add_bits(self, bits, datatype=str, nlsb=None):
         if datatype == int:
-            bits = bin(bits)[2:]
+            bits = '0'*7 + bin(bits)[2:] # add padding zero bits before
+            bits = bits[-nlsb:]
         
         self.bits.append(bits)
         self.read_length += len(bits)
@@ -170,13 +172,37 @@ def write_lsb_avg(byte_list, bits, n):
     Returns:
         List[int]: List of final byte values to be stored in the output cover
     """    
-    m = len(byte_list)
-    avg_byte = sum(byte_list) // m
-    avg_lsb = get_lsb(avg_byte, n)
-    diff = avg_lsb - int(bits, 2) 
+    # make sure bits are right size (add padding if needed)
+    # for example lsb = 3 but bits are '01'
+    # add dummy padding after so '010'
+    if len(bits) < n:
+        bits = bits + (n - len(bits))*'0'
 
-    for i in range(m):
-        byte_list[i] = byte_list[i] + diff
+    # sum byte
+    m = len(byte_list)
+    sum_byte = sum(byte_list) 
+    sum_lsb = get_lsb(sum_byte, n)
+    # diff = (int(bits, 2) * m) % (2**n) - sum_lsb
+    diff = (int(bits, 2) * m) - sum_lsb
+
+    # average = m = [a + b + c] / n
+    # desired average = z = [a + b + c + x] / n
+    # x?
+    # x = z * n - [a + b + c]
+
+    i = 0
+    while diff != 0:
+        if diff > 0:
+            byte_list[i] = byte_list[i] + 1 
+            diff -= 1
+        else:
+            byte_list[i] = byte_list[i] - 1 
+            diff += 1
+        i += 1
+        i %= m # same as i = i % m (rotate through bytes e.g. 0, 1, 2, 0, 1, 2)
+    
+    if sum(byte_list)/m != sum(byte_list)//m:
+        pdb.set_trace()
 
     return byte_list
 
@@ -239,10 +265,10 @@ def write_lsb_sum(byte_list, bits, n):
     i = 0
     while diff != 0:
         if diff > 0:
-            byte_list[i] = byte_list[i] + 1 
+            byte_list[i] = byte_list[i] - 1 
             diff -= 1
         else:
-            byte_list[i] = byte_list[i] - 1 
+            byte_list[i] = byte_list[i] + 1 
             diff += 1
         i += 1
         i %= m # same as i = i % m 
