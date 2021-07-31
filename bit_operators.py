@@ -203,15 +203,24 @@ def write_lsb_avg(byte_list, bits, n):
 
 
     i = 0
+    iteration_counter = 0
+    original_diff = diff
     while diff != 0:
+        if iteration_counter > abs(original_diff*m) + m:
+            pdb.set_trace()
+
         if diff > 0:
-            byte_list[i] = byte_list[i] + 1 
-            diff -= 1
+            if byte_list[i] < 255:
+                byte_list[i] = byte_list[i] + 1 
+                diff -= 1
         else:
-            byte_list[i] = byte_list[i] - 1 
-            diff += 1
+            if byte_list[i] > 0:
+                byte_list[i] = byte_list[i] - 1 
+                diff += 1
         i += 1
         i %= m # same as i = i % m (rotate through bytes e.g. 0, 1, 2, 0, 1, 2)
+        iteration_counter += 1
+
     
     if target_average != sum(byte_list)/m:
         print("bad target average")
@@ -280,13 +289,20 @@ def write_lsb_sum(byte_list, bits, n):
     diff = int(bits, 2) - sum_lsb
 
     i = 0
+    iteration_counter = 0
+    original_diff = diff
     while diff != 0:
+        if iteration_counter > abs(original_diff*m) + m:
+            pdb.set_trace()
+
         if diff > 0:
-            byte_list[i] = byte_list[i] + 1 
-            diff -= 1
+            if byte_list[i] < 255:
+                byte_list[i] = byte_list[i] + 1 
+                diff -= 1
         else:
-            byte_list[i] = byte_list[i] - 1 
-            diff += 1
+            if byte_list[i] > 0:
+                byte_list[i] = byte_list[i] - 1 
+                diff += 1
         i += 1
         i %= m # same as i = i % m 
 

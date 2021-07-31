@@ -1,5 +1,5 @@
 from PIL import Image
-from bit_operators import BitFeederString, BitSaver, read_lsb_avg, write_lsb_avg, read_lsb_sum, write_lsb_sum, replace_lsb
+from bit_operators import BitFeederString, BitSaver, read_lsb_avg, write_lsb_avg, read_lsb_sum, write_lsb_sum, get_lsb, replace_lsb
 import os, sys
 from arguments import avg_parser
 import pdb
@@ -61,6 +61,10 @@ def update_pixel(image, coords, new_pixels):
         
         image.putpixel((c[1], c[0]), updated)
 
+        if image.getpixel((c[1], c[0]))[c[2]] != new_pixels[i]:
+            pdb.set_trace()
+
+
 def save_metadata(output, message_size, message_extension):
     # start at 0,0 pixel, use 4 lsb in corner
     size_bits = bin(message_size)[2:]
@@ -95,8 +99,24 @@ def save_metadata(output, message_size, message_extension):
 def get_metadata(image):
     cg2 = CoordGenerator(image.size[0], image.size[1], 3, start_position=[0,0,0])
     coordinate_set = cg2.get_n(32)
-    for i in range(len(coordinate_set))
+    metadata = []
+    for i in range(len(coordinate_set)):
+        c = coordinate_set[i]
+        pixel = image.getpixel((c[1], c[0]))
+        bits = get_lsb(pixel[c[2]], 4)
+        bits = bin(bits)[2:]
+        bits = '0'*(4-len(bits)) + bits
+        metadata.append(bits)
 
+    message_size = ''.join(metadata[:8])
+    message_size = int(message_size, 2)
+    
+    ext_length = int(metadata[8],2)
+
+    ext_data = metadata[9:9+ext_length*2]
+    ext_data = [''.join(ext_data[i:i+2]) for i in range(0,len(ext_data),2)]
+    ext_data = [chr(int(x,2)) for x in ext_data]
+    message_extension = ''.join(ext_data)
     return message_size, message_extension
 
 args = avg_parser.parse_args()
@@ -106,6 +126,10 @@ message = args.message
 method = args.method
 nlsb = int(args.lsb) # number of lsb bits to use
 pixel_no = int(args.pixelno)
+
+print(cover)
+print(message)
+print(message)
 
 im = Image.open(cover)
 output = im.copy()
@@ -123,26 +147,26 @@ if command == 'encode':
         pixel_group = get_pixel_byte_group(im, coordinate_set) 
 
         if method == 'sum':
-            new_bytes = write_lsb_sum(pixel_group, bf.get_bits(nlsb), nlsb)
+            new_bytes = write_lsb_sum(pixel_group.copy(), bf.get_bits(nlsb), nlsb)
 
         elif method == 'avg':
-            new_bytes = write_lsb_avg(pixel_group, bf.get_bits(nlsb), nlsb)
+            new_bytes = write_lsb_avg(pixel_group.copy(), bf.get_bits(nlsb), nlsb)
         
         # update output
         update_pixel(output, coordinate_set, new_bytes)
-        
+
     if bf.finished:
         print("success")
-
-    print(f"original 0,1 pixel: {im.getpixel((0,1))}")
-    print(f"output 0,1 pixel: {output.getpixel((0,1))}")
+    else:
+        print('ran out of pixels for data storage')
 
     output.save('output.' + cover.split('.')[-1])
 
 if command == 'decode':
-    print(f"cover 0,1 pixel: {output.getpixel((0,1))}")
-    bs = BitSaver(file_length=405216) # hard code test file size for now TODO FILE METADATA
-    # bs = BitSaver(file_length=1112) # hard code test file size for now TODO FILE METADATA
+    message_length, extension = get_metadata(im)
+    print(f"expected message size: {message_length}")
+
+    bs = BitSaver(file_length=message_length*8) 
     cg = CoordGenerator(im.size[0], im.size[1], 3, start_position=[1,0,0])
 
     while not bs.finished:
@@ -158,5 +182,5 @@ if command == 'decode':
         # add bits to file
         bs.add_bits(bits, datatype=int, nlsb=nlsb)
     
-    bs.save_file('test_output.jpg')
+    bs.save_file('test_output.'+extension)
     # bs.save_file('test_output.txt')

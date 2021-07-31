@@ -1,7 +1,9 @@
 __pycache__/*
 *.bmp
+*.pyc
 *.jpeg
 *.jpg
 *.png
 *.pptx
+.DS_Store
 Untitled.ipynb
