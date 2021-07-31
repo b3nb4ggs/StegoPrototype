@@ -373,7 +373,3 @@ if command == 'decode':
 #        12    0.000    0.000    0.000    0.000 {method 'tell' of '_io.BufferedReader' objects}
 #         2    0.000    0.000    0.000    0.000 {method 'upper' of 'str' objects}
 #        22    0.000    0.000    0.000    0.000 {method 'write' of '_io.BufferedRandom' objects}
-
-
-
-In [9]:                                                                                                                              
