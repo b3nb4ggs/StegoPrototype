@@ -201,13 +201,32 @@ def write_lsb_avg(byte_list, bits, n):
     # x?
     # x = z * n - [a + b + c]
 
+    if diff < 0 and sum(byte_list) < -diff:
+        # need to add bits to byte list if all the bits are zero or close to zero
+        # [0 0 0] diff is -31 nlsb = 5
+        # b[i] + diff // m + 1 # seems reasonable
+        byte_list = [b-diff//m+1 for b in byte_list]
+        sum_byte = sum(byte_list) 
+        target_average = int(sum_byte / m - (sum_byte / m) % (2**n) + int(bits,2))
+        diff = target_average * m - sum_byte
+
+    if diff > 0 and sum(255-byte_list[i] for i in range(m)) < diff:
+        # need to add bits to byte list if all the bits are 255 or close to 255
+        # [0 0 0] diff is -31 nlsb = 5
+        # b[i] + diff // m + 1 # seems reasonable
+        byte_list = [b-diff//m-1 for b in byte_list]
+        sum_byte = sum(byte_list) 
+        target_average = int(sum_byte / m - (sum_byte / m) % (2**n) + int(bits,2))
+        diff = target_average * m - sum_byte
 
     i = 0
     iteration_counter = 0
     original_diff = diff
     while diff != 0:
         if iteration_counter > abs(original_diff*m) + m:
-            pdb.set_trace()
+            print(byte_list)
+            print('stuck replacing lsb')
+            break
 
         if diff > 0:
             if byte_list[i] < 255:
@@ -263,7 +282,6 @@ def read_lsb_sum(byte_list, n_lsb):
     """    
     sum_byte = sum(byte_list)
     return get_lsb(sum_byte, n_lsb)
-
 
 def write_lsb_sum(byte_list, bits, n):
     """takes a list of bytes, a sequence of message bits and the number of bits
