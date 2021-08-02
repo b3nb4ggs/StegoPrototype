@@ -16,6 +16,7 @@ x = subprocess.run(
         'average.py',
         'encode',
         'codepic.png',
+        '--message',
         'zero_test.txt',
         '--lsb',
         str(lsb),
@@ -33,8 +34,7 @@ y = subprocess.run(
         'python3.8',
         'average.py',
         'decode',
-        'output.png',
-        'zero_test.txt',
+        'stego.png',
         '--lsb',
         str(lsb),
         '--pixelno',
@@ -46,7 +46,7 @@ y = subprocess.run(
 print('finished decode')
 print(y.stdout)
 
-with open('test_output.txt', 'rb') as output_file:
+with open('message_extract.txt', 'rb') as output_file:
     result_data = output_file.read()
 
 print(sum(result_data))
