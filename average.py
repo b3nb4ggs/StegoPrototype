@@ -116,6 +116,13 @@ def get_metadata(image):
     message_extension = ''.join(ext_data)
     return message_size, message_extension
 
+def check_capacity(image, message_size, nlsb, pixel_no):
+    w, h = image.size
+    total_bytes = w*h*3
+    total_capacity = total_bytes * nlsb // pixel_no
+
+    return message_size < total_capacity
+
 args = avg_parser.parse_args()
 command = args.command
 cover = args.cover
@@ -124,18 +131,22 @@ method = args.method
 nlsb = int(args.lsb) # number of lsb bits to use
 pixel_no = int(args.pixelno)
 
-print(cover)
-print(message)
-print(message)
-
 im = Image.open(cover)
 output = im.copy()
 
 if command == 'encode':
+    if message is None:
+        raise ValueError("missing --message <message_file> argument. nothing to hide")
+
     bf = BitFeederString(message)
     cg = CoordGenerator(im.size[0], im.size[1], 3, start_position=[1, 0, 0]) # start on second row of the image
 
     message_size = int(bf.get_length()/8)
+
+    if not check_capacity(im, message_size*8, nlsb, pixel_no):
+        print(f"cover does not have enough capacity for message size, lsb, and pixel_no")
+        sys.exit(1)
+
     message_extension = message.split(".")[-1]
 
     save_metadata(output, message_size, message_extension)
@@ -157,7 +168,7 @@ if command == 'encode':
     else:
         print('ran out of pixels for data storage')
 
-    output.save('output.' + cover.split('.')[-1])
+    output.save('stego.' + cover.split('.')[-1])
 
 if command == 'decode':
     message_length, extension = get_metadata(im)

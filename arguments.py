@@ -10,7 +10,7 @@ help='(1-8) Which bit to hide in (8=LSB) default=8', default=8)
 avg_parser = argparse.ArgumentParser(description='Inputs for the avg/sum stego program.')
 avg_parser.add_argument('command', metavar='command', help='Options:<encode><decode>')
 avg_parser.add_argument('cover', metavar='cover', help='The .bmp file your hiding in.')
-avg_parser.add_argument('message', metavar='message', help="Any file type you want to hide inside the .bmp")
+avg_parser.add_argument('--message', metavar='message', help="Any file type you want to hide inside the .bmp")
 avg_parser.add_argument('--method', metavar='method', 
     help='the method to hide lsb data. either avg or sum', default='avg')
 avg_parser.add_argument('--lsb', metavar='lsb', 
