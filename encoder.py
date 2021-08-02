@@ -1,6 +1,7 @@
+from sys import exit
 from PIL import Image
 from bit_operators import BitFeederString, BitSaver
-import os, sys
+import os
 import argparse
 
 #Makes sure we have an 8 bit byte from int
@@ -30,6 +31,11 @@ def encoder(cover,message,level=8):
 #decodes 1 bit at specified bit level
 def decoder(cover,level=8):
     return cover[level-1:level]
+#returns file extension
+def get_type(input):
+    type = os.path.splitext(input)
+    output = str(type[-1])
+    return output
 #A very ugly function to get the number of encoded bits 
 def get_length_from_file(x:Image,level=8):
     i = 0
@@ -46,7 +52,7 @@ def get_length_from_file(x:Image,level=8):
 parser = argparse.ArgumentParser(description='Inputs for the stego program.')
 parser.add_argument('command', metavar='command', help='Options:<encode><decode>')
 parser.add_argument('cover', metavar='cover', help='The .bmp file your hiding in.')
-parser.add_argument('message', metavar='message', help="Any file type you want to hide inside the .bmp")
+parser.add_argument('message', metavar='message', help="The file to hide inside of .bmp OR <output> on decode")
 parser.add_argument('--bit_depth', metavar='bit', 
 help='(1-8) Which bit to hide in (8=LSB) default=8', default=8)
 args = parser.parse_args()
