@@ -306,6 +306,25 @@ def write_lsb_sum(byte_list, bits, n):
     sum_lsb = get_lsb(sum_byte, n)
     diff = int(bits, 2) - sum_lsb
 
+
+    if diff < 0 and sum(byte_list) < -diff:
+        # need to add bits to byte list if all the bits are zero or close to zero
+        # [0 0 0] diff is -31 nlsb = 5
+        # b[i] + diff // m + 1 # seems reasonable
+        byte_list = [b-diff//m+1 for b in byte_list]
+        sum_byte = sum(byte_list) 
+        target_average = int(sum_byte / m - (sum_byte / m) % (2**n) + int(bits,2))
+        diff = target_average * m - sum_byte
+
+    if diff > 0 and sum(255-byte_list[i] for i in range(m)) < diff:
+        # need to add bits to byte list if all the bits are 255 or close to 255
+        # [0 0 0] diff is -31 nlsb = 5
+        # b[i] + diff // m + 1 # seems reasonable
+        byte_list = [b-diff//m-1 for b in byte_list]
+        sum_byte = sum(byte_list) 
+        target_average = int(sum_byte / m - (sum_byte / m) % (2**n) + int(bits,2))
+        diff = target_average * m - sum_byte
+
     i = 0
     iteration_counter = 0
     original_diff = diff
