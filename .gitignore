@@ -1,4 +1,5 @@
 __pycache__/*
+stego_env/
 *.bmp
 *.pyc
 *.jpeg
@@ -6,4 +7,3 @@ __pycache__/*
 *.png
 *.pptx
 .DS_Store
-Untitled.ipynb
