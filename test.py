@@ -2,6 +2,7 @@ import subprocess
 
 FILE_LENGTH = 50000
 
+# test that code correctly writes file with all zero bytes
 zero_data = bytes(FILE_LENGTH)
 with open('zero_test.txt','wb') as f_zero:
     f_zero.write(zero_data)
