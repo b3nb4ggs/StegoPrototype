@@ -81,13 +81,16 @@ if command == 'encode':
     print("Bit depth ="+ str(bit_depth))
     filesize = os.path.getsize(message)
     x = Image.open(cover)
+    if x.mode != 'RGB':
+        print("Please use a full color bitmap")
+        exit()
     pic_size = x.size
     num_of_pixels = pic_size[0]*pic_size[1]
     available_bytes=(num_of_pixels*(3))/8
     print("Filesize="+str(filesize)+"\nCapacity="+str(int(available_bytes)))
     if filesize > available_bytes:
         print("Your file is too large and will not fit.")
-        exit()
+        print("Proceeding with partial embed")
     else:
         name = get_type(message)
         info = []
