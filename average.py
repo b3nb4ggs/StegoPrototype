@@ -1,3 +1,8 @@
+# created by Group 6 
+#  Rongrong Wei, Ben Baggs
+# steganography project
+# this is the statistical hiding program
+
 from PIL import Image
 from bit_operators import BitFeederString, BitSaver, read_lsb_avg, write_lsb_avg, read_lsb_sum, write_lsb_sum, get_lsb, replace_lsb
 import os, sys

@@ -1,3 +1,8 @@
+# created by Group 6 
+#  Rongrong Wei, Ben Baggs
+# steganography project
+# this file contains file serialization and bit manipulation classes/functions
+
 import pdb
 
 class BitFeederString:

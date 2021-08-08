@@ -1,3 +1,8 @@
+# created by Group 6 
+#  Ben Baggs, Rongrong Wei
+# steganography project
+# this is the bit depth hiding program
+
 from sys import exit
 from PIL import Image
 from bit_operators import BitFeederString, BitSaver

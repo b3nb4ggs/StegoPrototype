@@ -10,6 +10,9 @@ Windows: python -m pip install Pillow
 
 ---------
 # average method:
+- view help menu
+python average.py -h
+
 - encode using average.py (average lsb method)
 python average.py encode stego.bmp --message ft.jpeg --lsb 1 --pixelno 9 --method avg
 

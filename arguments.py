@@ -1,3 +1,8 @@
+# created by Group 6 
+#  Rongrong Wei, Ben Baggs
+# steganography project
+# this file processes input arguments from the command line
+
 import argparse
 
 parser = argparse.ArgumentParser(description='Inputs for the stego program.')
