@@ -1,9 +1,6 @@
 __pycache__/*
 stego_env/
-*.bmp
 *.pyc
 *.jpeg
-*.jpg
-*.png
 *.pptx
 .DS_Store
