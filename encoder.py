@@ -91,41 +91,42 @@ if command == 'encode':
     if filesize > available_bytes:
         print("Your file is too large and will not fit.")
         print("Proceeding with partial embed")
-    else:
-        name = get_type(message)
-        info = []
-        for letter in name:
-            info.append(ord(letter))
-        bits = ""
-        for stuff in info:
-            bits += byte_maker(stuff)
-        bits = bits.zfill(40)
-        bfeed = BitFeederString(message)
-        length = bfeed.get_length()
-        encoded_length = length_in_bits(length)
-        length_index = 0
-        for i in range(pic_size[0]):
-            for j in range(pic_size[1]):
-                color = x.getpixel((i,j))
-                modified = []
-                for RGB in range(len(color)):
-                        input = color[RGB]
-                        cover = byte_maker(input)
-                        if length_index < 32:
-                            message = encoded_length[length_index]
-                            length_index +=1
-                        elif length_index >= 32 and length_index <72:
-                            message = bits[length_index-32]
-                            length_index +=1
-                        else:
-                            message = bfeed.get_bits(1)
-                        encoded = encoder(cover,message,level=int(bit_depth))
-                        output = int(encoded, 2)
-                        modified.append(output)
-                x.putpixel( (i , j), (modified[0], modified[1], modified[2], 255))
-                if bfeed.finished == True:
-                    x.save("Encoded_output.bmp", format="BMP")
-                    exit()
+    
+    name = get_type(message)
+    info = []
+    for letter in name:
+        info.append(ord(letter))
+    bits = ""
+    for stuff in info:
+        bits += byte_maker(stuff)
+    bits = bits.zfill(40)
+    bfeed = BitFeederString(message)
+    length = bfeed.get_length()
+    encoded_length = length_in_bits(length)
+    length_index = 0
+    for i in range(pic_size[0]):
+        for j in range(pic_size[1]):
+            color = x.getpixel((i,j))
+            modified = []
+            for RGB in range(len(color)):
+                    input = color[RGB]
+                    cover = byte_maker(input)
+                    if length_index < 32:
+                        message = encoded_length[length_index]
+                        length_index +=1
+                    elif length_index >= 32 and length_index <72:
+                        message = bits[length_index-32]
+                        length_index +=1
+                    else:
+                        message = bfeed.get_bits(1)
+                    encoded = encoder(cover,message,level=int(bit_depth))
+                    output = int(encoded, 2)
+                    modified.append(output)
+            x.putpixel( (i , j), (modified[0], modified[1], modified[2], 255))
+            
+            if bfeed.finished == True or i >=pic_size[0]-1 and j>=pic_size[1]-1:
+                x.save("Encoded_output.bmp", format="BMP")
+                exit()
 
 if command == 'decode':
     x = Image.open(cover)

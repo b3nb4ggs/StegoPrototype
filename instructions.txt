@@ -11,25 +11,26 @@ Windows: python -m pip install Pillow
 ---------
 # average method:
 - encode using average.py (average lsb method)
-python average.py encode colortest.png --message cat.jpg --lsb 1 --pixelno 9 --method avg
+python average.py encode stego.bmp --message ft.jpeg --lsb 1 --pixelno 9 --method avg
 
 - decode using average.py (average lsb method) stego.png or stego.bmp will be cover with hidden message
-python average.py decode stego.png --lsb 1 --pixelno 9 --method avg
+python average.py decode stego.bmp --lsb 1 --pixelno 9 --method avg
 
 # output message will be named message_extract.xxx where xxx is extension (for cat.jpg -> "message_extract.jpg" will be output message file)
 
 ---------
 # sum method (same as average with different --method argument):
 # encode using average.py (sum lsb method)
-python average.py encode colortest.png --message cat.jpg --lsb 1 --pixelno 9 --method sum
+python average.py encode stego.bmp --message ft.jpeg --lsb 1 --pixelno 9 --method sum
 # decode using average.py (sum lsb method) stego.png or stego.bmp will be cover with hidden message
-python average.py decode stego.png --lsb 1 --pixelno 9 --method sum
+python average.py decode stego.bmp --lsb 1 --pixelno 9 --method sum
 
 
 ---------
+#View help
+python3 encoder.py -h
 # hide multiple messages in different bit planes method
-# encode using encode.py
-python encoder.py encode colortest.bmp cat.jpg --bit_depth 7
+python3 encoder.py encode stego.bmp sample.pptx --bit_depth 6
 # decode using encode.py
-python encoder.py decode Encoded_output.bmp out --bit_depth 7
-# need to change output to desired file extension
+python3 encoder.py decode Encoded_output.bmp output --bit_depth 6
+#Generates output.pptx
