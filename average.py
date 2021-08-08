@@ -227,14 +227,18 @@ if __name__ == "__main__":
         message_size = int(bf.get_length()/8)
 
         if not check_capacity(im, message_size*8, nlsb, pixel_no):
-            print(f"cover does not have enough capacity for message size, lsb, and pixel_no")
-            sys.exit(1)
+            print(f"WARNING: cover does not have enough capacity for message size, lsb, and pixel_no")
+            # sys.exit(1)
 
         message_extension = message.split(".")[-1]
 
         save_metadata(output, message_size, message_extension)
         while not bf.finished and not cg.exit:
             coordinate_set = cg.get_n(pixel_no)
+            if len(coordinate_set) == 0:
+                print('ran out of coordinates terminating early.')
+                break
+
             pixel_group = get_pixel_byte_group(im, coordinate_set) 
 
             if method == 'sum':
