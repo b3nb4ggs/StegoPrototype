@@ -1,8 +1,16 @@
+# this is the manual/documentation for running the project 
+
+----------
 # to set up python environment:
 This project runs on Python 3
 Check python version using command: python --version
-If python --version shows you have Python 2.7 or less, use the command "python3" in place of "python" in the commands below
+If "python --version" shows you have Python 2.7 or less, use the command "python3" in place of "python" in the commands below
+for example, if you have multiple python versions and the command instruction is:
+"python average.py encode --message cat.jpg --lsb 1 --pixelno 3 --method avg"
+then use the command below instead to make sure that the program is being executed with python3:
+"python3 average.py encode --message cat.jpg --lsb 1 --pixelno 3 --method avg"
 
+**important**
 To run this program, you will need to install Pillow package
 Linux/Mac: run bash setup.sh (if permission issue need to chmod u+x setup.sh)
         OR run python -m pip install Pillow
@@ -13,27 +21,32 @@ Windows: python -m pip install Pillow
 - view help menu
 python average.py -h
 
-- encode using average.py (average lsb method)
-python average.py encode stego.bmp --message ft.jpeg --lsb 1 --pixelno 9 --method avg
+- encode using average.py (average lsb method) 
+python average.py encode cover.bmp --message cat.jpg --lsb 1 --pixelno 9 --method avg
+# stego.png or stego.bmp will be output file - cover with hidden message
 
-- decode using average.py (average lsb method) stego.png or stego.bmp will be cover with hidden message
+- decode using average.py (average lsb method) 
 python average.py decode stego.bmp --lsb 1 --pixelno 9 --method avg
-
 # output message will be named message_extract.xxx where xxx is extension (for cat.jpg -> "message_extract.jpg" will be output message file)
+# in this example, output will be "message_extract.jpg"
 
 ---------
 # sum method (same as average with different --method argument):
 # encode using average.py (sum lsb method)
-python average.py encode stego.bmp --message ft.jpeg --lsb 1 --pixelno 9 --method sum
-# decode using average.py (sum lsb method) stego.png or stego.bmp will be cover with hidden message
+python average.py encode cover.bmp --message cat.jpg --lsb 1 --pixelno 9 --method sum
+# stego.png or stego.bmp will be output file - cover with hidden message
+
+# decode using average.py (sum lsb method) 
 python average.py decode stego.bmp --lsb 1 --pixelno 9 --method sum
+# output message will be named message_extract.xxx where xxx is extension (for cat.jpg -> "message_extract.jpg" will be output message file)
+# in this example, output will be "message_extract.jpg"
 
 
 ---------
 #View help
-python3 encoder.py -h
+python encoder.py -h
 # hide multiple messages in different bit planes method
-python3 encoder.py encode stego.bmp sample.pptx --bit_depth 6
+python encoder.py encode cover.bmp sample.pptx --bit_depth 6
 # decode using encode.py
-python3 encoder.py decode Encoded_output.bmp output --bit_depth 6
+python encoder.py decode Encoded_output.bmp output --bit_depth 6
 #Generates output.pptx
