@@ -1,4 +1,6 @@
 # this is the manual/documentation for running the project 
+# this project is for group 6
+# group members: Rongrong Wei and Ben Baggs
 
 ----------
 # to set up python environment:
